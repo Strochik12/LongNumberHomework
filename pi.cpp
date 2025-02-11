@@ -1,9 +1,9 @@
-//#include "LongNumber.hpp"
+#include "LongNumber.cpp"
+
 #include <iostream>
 #include <time.h>
 #include <iomanip>
 
-#include "LongNumber2.cpp"
 
 
 int main() {
