@@ -61,75 +61,6 @@ namespace LongNum {
         //--------------------------integer--
     }
 
-    std::string Number::multiplyDecimalStringBy2(std::string &number) const {
-        //std::cout << number << " * 2 = ";//multiply2DEBUG
-        std::string multiplied = "";
-        int carry = 0;
-        for (int i = number.length() - 1; i >= 0; --i) {
-            char digit = number[i];
-            int cur = (digit - '0') * 2 + carry;
-            multiplied += (cur % 10) + '0';
-            carry = cur / 10;
-        }
-        if (carry > 0) multiplied += (carry + '0');
-        std::reverse(multiplied.begin(), multiplied.end());
-        //std::cout << multiplied << "\n";//multiply2DEBUG
-        return multiplied;
-    }
-
-    //only works with number < 0
-    std::string Number::deepDivideDecimalStringBy2(std::string &number) const {
-        //std::cout << number << " / 2 = ";//divide2DEBUG
-        std::string divided = "0.";
-        int carry = 0;
-        for (int i = 2; i < number.length(); ++i) {
-            char digit = number[i];
-            int cur = carry * 10 + (digit - '0');
-            divided += (cur / 2) + '0';
-            carry = cur % 2;
-        }
-        if (carry) divided += '5';
-        //std::cout << divided << "\n";//divide2DEBUG
-        return divided;
-    }
-
-    std::string Number::addDecimalStrings(std::string a, std::string b) const {
-        //std::cout << a << " + " << b << " = ";//addStringsDEBUG
-        std::reverse(a.begin(), a.end());
-        std::reverse(b.begin(), b.end());
-        int ap = a.find('.'), bp = b.find('.');
-        if (ap == std::string::npos) {
-            a = '.' + a;
-            ap = 0;
-        }
-        if (bp == std::string::npos) {
-            b = '.' + b;
-            bp = 0;
-        }
-
-        int len = std::max(ap, bp) + std::max(a.length() - ap, b.length() - bp);
-        int ai = ap - std::max(ap, bp), bi = bp - std::max(ap, bp);
-        int carry = 0;
-        std::string result = "";
-        for (int i = 0; i < len; ++i) {
-            if (i + ai >= 0 && a[i + ai] == '.') {
-                result += '.';
-                continue;
-            }
-            int cur = carry;
-            if (i + ai >= 0 && i + ai < a.length()) cur += (a[i + ai] - '0');
-            if (i + bi >= 0 && i + bi < b.length()) cur += (b[i + bi] - '0');
-            result += (cur % 10) + '0';
-            carry = cur / 10;
-        }
-        if (carry) result += (carry + '0');
-        std::reverse(result.begin(), result.end());
-        while (result.back() == '0' || result.back() == '.')
-            result.pop_back();
-        //std::cout << result << "\n";//addStringsDEBUG
-        return result;
-    }
-
     std::string Number::toDecimal() const {
         std::string number = str();
         std::string sign = "";
@@ -408,29 +339,154 @@ namespace LongNum {
         return *this = *this / other;
     }
 
-    void Number::test() {
-        std::cout << "size: " << digits.size() << "\n";
-        std::cout << "fraction_len: " << fraction_len << "\n";
-        for (int i = 0; i < digits.size(); ++i) {
-            std::cout << digits[i] << " ";
+
+
+
+
+    std::string toBinary(std::string number, unsigned precision) {
+        std::string sign = "";
+        if (number[0] == '-') {
+            sign = "-";
+            number.erase(number.begin());
         }
-        std::cout << "\n" << *this << "\n";
+        size_t dot_pos = number.find('.');
+        std::string integer_part = number.substr(0, dot_pos);
+        std::string fraction_part = (dot_pos == std::string::npos) ? "0" : number.substr(dot_pos + 1);
+        while (fraction_part.size() > 1 && fraction_part.back() == '0')
+            fraction_part.pop_back();
+        while (integer_part.size() > 1 && integer_part[0] == '0')
+            integer_part.erase(integer_part.begin());
+
+        //--integer--------------------------
+        std::string bin_int = "";
+        while (integer_part != "0") {
+            int digit = (integer_part.back() - '0') % 2;
+            bin_int += (digit ? '1' : '0');
+            integer_part = divideDecimalStringBy2(integer_part);
+        }
+        std::reverse(bin_int.begin(), bin_int.end());
+        if (bin_int.empty()) bin_int = "0";
+        //--------------------------integer--
+
+        //--fraction-------------------------
+        std::string bin_frac = "";
+        int sz = fraction_part.length();
+        while (!fraction_part.empty() && (unsigned)bin_frac.length() < precision) {
+            fraction_part = multiplyDecimalStringBy2(fraction_part);
+            if (fraction_part.length() > sz) {
+                bin_frac += '1';
+                fraction_part[0] -= 5;
+                fraction_part.erase(fraction_part.begin());
+            } else {
+                bin_frac += '0';
+            }
+        }
+        //-------------------------fraction--
+
+        return sign + bin_int + (bin_frac.empty() ? "" : "." + bin_frac);
     }
 
+    std::string multiplyDecimalStringBy2(std::string number) {
+        //std::cout << number << " * 2 = ";//multiply2DEBUG
+        std::string multiplied = "";
+        int carry = 0;
+        for (int i = number.length() - 1; i >= 0; --i) {
+            char digit = number[i];
+            int cur = (digit - '0') * 2 + carry;
+            multiplied += (cur % 10) + '0';
+            carry = cur / 10;
+        }
+        if (carry > 0) multiplied += (carry + '0');
+        std::reverse(multiplied.begin(), multiplied.end());
+        //std::cout << multiplied << "\n";//multiply2DEBUG
+        return multiplied;
+    }
+
+    std::string divideDecimalStringBy2(std::string number) {
+        std::string divided = "";
+        int carry = 0;
+        for (char digit: number) {
+            int cur = carry * 10 + (digit - '0');
+            divided += (cur / 2) + '0';
+            carry = cur % 2;
+        }
+        while (divided.size() > 1 && divided[0] == '0') {
+                divided.erase(divided.begin());
+        }
+        return divided;
+    }
+
+    //only works with number < 0
+    std::string deepDivideDecimalStringBy2(std::string number) {
+        //std::cout << number << " / 2 = ";//divide2DEBUG
+        std::string divided = "0.";
+        int carry = 0;
+        for (int i = 2; i < number.length(); ++i) {
+            char digit = number[i];
+            int cur = carry * 10 + (digit - '0');
+            divided += (cur / 2) + '0';
+            carry = cur % 2;
+        }
+        if (carry) divided += '5';
+        //std::cout << divided << "\n";//divide2DEBUG
+        return divided;
+    }
+
+    std::string addDecimalStrings(std::string a, std::string b) {
+        //std::cout << a << " + " << b << " = ";//addStringsDEBUG
+        std::reverse(a.begin(), a.end());
+        std::reverse(b.begin(), b.end());
+        int ap = a.find('.'), bp = b.find('.');
+        if (ap == std::string::npos) {
+            a = '.' + a;
+            ap = 0;
+        }
+        if (bp == std::string::npos) {
+            b = '.' + b;
+            bp = 0;
+        }
+
+        int len = std::max(ap, bp) + std::max(a.length() - ap, b.length() - bp);
+        int ai = ap - std::max(ap, bp), bi = bp - std::max(ap, bp);
+        int carry = 0;
+        std::string result = "";
+        for (int i = 0; i < len; ++i) {
+            if (i + ai >= 0 && a[i + ai] == '.') {
+                result += '.';
+                continue;
+            }
+            int cur = carry;
+            if (i + ai >= 0 && i + ai < a.length()) cur += (a[i + ai] - '0');
+            if (i + bi >= 0 && i + bi < b.length()) cur += (b[i + bi] - '0');
+            result += (cur % 10) + '0';
+            carry = cur / 10;
+        }
+        if (carry) result += (carry + '0');
+        std::reverse(result.begin(), result.end());
+        while (result.back() == '0' || result.back() == '.')
+            result.pop_back();
+        //std::cout << result << "\n";//addStringsDEBUG
+        return result;
+    }
 }
 
 LongNum::Number operator ""_LN(unsigned long long n) {
     return LongNum::Number(n);
 }
 
+LongNum::Number operator ""_LN(long double n) {
+    return LongNum::Number(LongNum::toBinary(std::to_string(n), 100));
+}
+
 
 
 /*
 int main() {
-    LongNum::Number x("10001.101");
-    LongNum::Number y("10110.1011");
+    //LongNum::Number x("10001.101");
+    //LongNum::Number y("10110.1011");
     //LongNum::Number ZV("987654321.987654321");
-    std::cout << x / y << "\n";
+    //std::cout << LongNum::toBinary("321.45", 5) << "\n";
+    std::cout << LongNum::toBinary("57.111", 15);
     //std::cout << x.toDecimal() << "\n";
 }
 //*/

@@ -8,6 +8,7 @@
 
 int main() {
     unsigned int precision;
+    std::cout << "precision: ";
     std::cin >> precision;
     clock_t start, finish;
     int K = precision;
@@ -74,9 +75,10 @@ int main() {
 
     finish = clock();
 
-    std::string realpi = "3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679";
-    std::cout << realpi << "\n";
-    std::cout << pi.toDecimal().substr(0, realpi.length()) << "\n";
+    //realpi contains 200 decimal digits after the decimal point of pi
+    std::string realpi = "3.14159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328230664709384460955058223172535940812848111745028410270193852110555964462294895493038";
+    std::cout << "actual pi:     " <<  realpi.substr(0, K + 2) << "\n";
+    std::cout << "calculated pi: " << pi.toDecimal().substr(0, K + 2) << "\n";
     std::cout << "time: " << std::setprecision(15) << static_cast<long double>(finish - start)/CLOCKS_PER_SEC << " sec\n";
     //pi.test();
 }

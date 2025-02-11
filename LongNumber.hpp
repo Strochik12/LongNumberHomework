@@ -1,3 +1,6 @@
+#ifndef LONG_NUMBER_HPP
+#define LONG_NUMBER_HPP
+
 #include <vector>
 #include <string>
 
@@ -16,12 +19,6 @@ namespace LongNum {
         bool isZero() const;
 
         void deleteZeros();
-
-        std::string multiplyDecimalStringBy2(std::string &) const;
-
-        std::string addDecimalStrings(std::string, std::string) const;
-
-        std::string deepDivideDecimalStringBy2(std::string &) const;
     public:
         void test();
 
@@ -66,8 +63,19 @@ namespace LongNum {
         
         Number &operator/=(const Number &);
     };
+    std::string multiplyDecimalStringBy2(std::string);
+
+    std::string addDecimalStrings(std::string, std::string);
+
+    std::string divideDecimalStringBy2(std::string);
+
+    std::string deepDivideDecimalStringBy2(std::string);
+
+    std::string toBinary(std::string, unsigned);
 }
 
 LongNum::Number operator ""_LN(ull);
 
 LongNum::Number operator ""_LN(long double);
+
+#endif
