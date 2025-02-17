@@ -83,6 +83,7 @@ void test_one(int n) {
 }
 
 int main() {
+    std::cout << "'test all' to run all tests\n'test n' to show n-th test\n'exit' to exit test programm\n";
     std::string line;
     while (getline(std::cin, line)) {
         size_t sep = line.find(' ');

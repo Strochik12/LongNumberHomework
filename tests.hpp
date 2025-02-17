@@ -90,6 +90,10 @@ const std::vector<Test> TESTS = {
         "operator ''_ln",
         "100010.000000111101"
     }
-    };
+};
+
+void test_all();
+
+void test_one();
 
 #endif
