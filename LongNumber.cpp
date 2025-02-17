@@ -11,7 +11,7 @@ namespace LongNum {
     Number::Number() {
         digits.push_back(0);
     }
-    Number::Number(int number, unsigned precision_ = 0) {
+    Number::Number(int number, unsigned precision_) {
         if (number < 0) {
             negative = true;
             number = -number;

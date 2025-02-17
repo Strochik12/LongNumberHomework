@@ -1,4 +1,4 @@
-#include "LongNumber.cpp"
+#include "LongNumber.hpp"
 
 #include <iostream>
 #include <time.h>
@@ -37,7 +37,7 @@ int main() {
     //*/
 
     if (precision == 0) {
-        pi = 3;
+        pi = 3_LN;
     }
 
     /*

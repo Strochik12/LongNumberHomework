@@ -24,7 +24,7 @@ namespace LongNum {
 
         Number();
 
-        Number(int, unsigned);
+        Number(int, unsigned = 0);
 
         explicit Number(std::string);
 
