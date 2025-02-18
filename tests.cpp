@@ -2,7 +2,6 @@
 #include "tests.hpp"
 
 #include <iostream>
-#include <vector>
 
 Test::Test(std::string _name, std::string _a, std::string _b, std::string _operation, std::string _expected_result):
     name(_name), a(_a), b(_b), operation(_operation), expected_result(_expected_result) {}
@@ -90,15 +89,26 @@ int main() {
         std::string command1 = line.substr(0, sep);
         if (command1 == "test") {
             std::string command2 = (sep == std::string::npos ? "" : line.substr(sep + 1));
-            if (command2 == "all")
+            if (command2 == "all") {
                 test_all();
-            else {
-                int n = std::stoi(command2);
-                if (n <= TESTS.size())
-                    test_one(n);
-                else
-                    std::cout << "No such test found\n";
+                continue;
             }
+            bool is_number = true;
+            for (auto c : command2) {
+                if (c < '0' || c > '9') {
+                    is_number = false;
+                    break;
+                }
+            }
+            if (!is_number || command2 == "") {
+                std::cout << "Invalid test index. Had to be either 'all' or a number.\n";
+                continue;
+            }
+            int n = std::stoi(command2);
+            if (n <= TESTS.size() && n >= 1)
+                test_one(n);
+            else
+                std::cout << "No such test found\n";
         } else if (line == "exit") {
             break;
         } else {
