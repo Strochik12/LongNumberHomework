@@ -8,9 +8,16 @@
 #include <iomanip>
 
 namespace LongNum {
+    unsigned Number::FIXED_PRECISION = 11;
+
+    void Number::change_precision(unsigned new_precision) {
+        FIXED_PRECISION = new_precision / BASE_SZ + (new_precision % BASE_SZ > 0);
+    }
+
     Number::Number() {
         digits.push_back(0);
     }
+
     Number::Number(int number, unsigned precision_) {
         if (number < 0) {
             negative = true;
@@ -18,7 +25,6 @@ namespace LongNum {
         }
         fraction_len = precision_ / BASE_SZ + (precision_ % BASE_SZ > 0);
         digits.resize(fraction_len);
-        //precision = precision_;
         digits.push_back(number);
     }
     
@@ -75,8 +81,6 @@ namespace LongNum {
             frac_part.pop_back();
         while (int_part.size() > 1 && int_part[0] == '0')
             int_part.erase(int_part.begin());
-
-        //std::cout << "source binary: " << int_part << "." << frac_part << "\n";//DELETE
 
         std::string decimal_int = "0";
         for (char bit: int_part) {
@@ -213,7 +217,6 @@ namespace LongNum {
         Number result;
         result.negative = a.negative;
         result.fraction_len = std::max(a.fraction_len, b.fraction_len);
-        //result.precision = result.fraction_len;
         unsigned len = result.fraction_len + std::max(a.digits.size() - a.fraction_len, b.digits.size() - b.fraction_len);
         result.digits.resize(len + 1);
 
@@ -235,7 +238,6 @@ namespace LongNum {
 
         Number result;
         result.fraction_len = std::max(a.fraction_len, b.fraction_len);
-        //result.precision = result.fraction_len;
         unsigned len = result.fraction_len + std::max(a.digits.size() - a.fraction_len, b.digits.size() - b.fraction_len);
         result.digits.resize(len);
 
@@ -263,7 +265,6 @@ namespace LongNum {
         result.negative = (a.negative != b.negative);
         result.fraction_len = a.fraction_len + b.fraction_len;
         result.digits.resize(result.fraction_len + a.digits.size() - a.fraction_len + b.digits.size() - b.fraction_len);
-        //result.precision = result.fraction_len;
         for (int i = 0; i < a.digits.size(); ++i) {
             ull carry = 0;
             for (int j = 0; j < b.digits.size(); ++j) {
@@ -273,12 +274,10 @@ namespace LongNum {
             }
             result.digits[i + b.digits.size()] += carry;
         }
-        ///*
         while (result.fraction_len > result.FIXED_PRECISION) {
             result.digits.erase(result.digits.begin());
             --result.fraction_len;
         }
-        //*/
         result.deleteZeros();
         return result;
     }
@@ -287,9 +286,7 @@ namespace LongNum {
         if (b.isZero()) throw std::overflow_error("division by 0");
         if (a.isZero()) return 0_LN;
         Number result;
-        //result.fraction_len = std::max(a.fraction_len, b.fraction_len);
         result.fraction_len = result.FIXED_PRECISION;
-        //result.precision = result.fraction_len;
 
         Number max_number = Number(result);
         max_number.digits.resize(max_number.fraction_len + 1, max_number.BASE - 1);
@@ -302,7 +299,6 @@ namespace LongNum {
         for (int i = result.digits.size() - 1; i >= 0; --i) {
             ull l = 0, r = result.BASE;
             bool solved = false;
-            //Number local_res;
             while (r - l > 1) {
                 result.digits[i] = (l + r) / 2;
                 Number local_res = result * b;
@@ -387,7 +383,6 @@ namespace LongNum {
     }
 
     std::string multiplyDecimalStringBy2(std::string number) {
-        //std::cout << number << " * 2 = ";//multiply2DEBUG
         std::string multiplied = "";
         int carry = 0;
         for (int i = number.length() - 1; i >= 0; --i) {
@@ -398,7 +393,6 @@ namespace LongNum {
         }
         if (carry > 0) multiplied += (carry + '0');
         std::reverse(multiplied.begin(), multiplied.end());
-        //std::cout << multiplied << "\n";//multiply2DEBUG
         return multiplied;
     }
 
@@ -416,9 +410,8 @@ namespace LongNum {
         return divided;
     }
 
-    //only works with number < 0
+    //only works with number < 1
     std::string deepDivideDecimalStringBy2(std::string number) {
-        //std::cout << number << " / 2 = ";//divide2DEBUG
         std::string divided = "0.";
         int carry = 0;
         for (int i = 2; i < number.length(); ++i) {
@@ -428,12 +421,10 @@ namespace LongNum {
             carry = cur % 2;
         }
         if (carry) divided += '5';
-        //std::cout << divided << "\n";//divide2DEBUG
         return divided;
     }
 
     std::string addDecimalStrings(std::string a, std::string b) {
-        //std::cout << a << " + " << b << " = ";//addStringsDEBUG
         std::reverse(a.begin(), a.end());
         std::reverse(b.begin(), b.end());
         int ap = a.find('.'), bp = b.find('.');
@@ -465,7 +456,6 @@ namespace LongNum {
         std::reverse(result.begin(), result.end());
         while (result.back() == '0' || result.back() == '.')
             result.pop_back();
-        //std::cout << result << "\n";//addStringsDEBUG
         return result;
     }
 }
@@ -477,16 +467,3 @@ LongNum::Number operator ""_LN(unsigned long long n) {
 LongNum::Number operator ""_LN(long double n) {
     return LongNum::Number(LongNum::toBinary(std::to_string(n), 100));
 }
-
-
-
-/*
-int main() {
-    //LongNum::Number x("10001.101");
-    //LongNum::Number y("10110.1011");
-    //LongNum::Number ZV("987654321.987654321");
-    //std::cout << LongNum::toBinary("321.45", 5) << "\n";
-    std::cout << LongNum::toBinary("57.111", 15);
-    //std::cout << x.toDecimal() << "\n";
-}
-//*/
