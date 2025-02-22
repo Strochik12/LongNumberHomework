@@ -1,8 +1,8 @@
 #include "LongNumber.hpp"
 
 #include <iostream>
-#include <time.h>
 #include <math.h>
+#include <chrono>
 
 const long double ln_approximation = log(10) / log(2);
 
@@ -10,7 +10,7 @@ int main() {
     unsigned int precision;
     std::cout << "precision: ";
     std::cin >> precision;
-    clock_t start, finish;
+    clock_t tstart, tfinish;
 
     LongNum::Number pi(0, precision);
 
@@ -30,7 +30,9 @@ int main() {
     LongNum::Number d0(6);
     LongNum::Number ln8(8);
 
-    start = clock();
+    tstart = clock();
+
+    const auto start = std::chrono::high_resolution_clock::now();
 
     if (precision == 0) {
         pi = 3_LN;
@@ -45,7 +47,9 @@ int main() {
         d0 += ln8;
     }
 
-    finish = clock();
+    tfinish = clock();
+
+    const auto finish = std::chrono::high_resolution_clock::now();
 
     //realpi contains 200 decimal digits after the decimal point of pi
     std::string realpi = "3.14159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328230664709384460955058223172535940812848111745028410270193852110555964462294895493038196";
@@ -53,5 +57,6 @@ int main() {
     std::cout << "calculated pi: " << pi.toDecimal().substr(0, precision + 2) << "\n";
     if (precision > 200)
         std::cout << "'actual pi:' contains only 200 decimal digits after the decimal point of pi :(\n";
-    std::cout << "time: " << static_cast<long double>(finish - start)/CLOCKS_PER_SEC << " sec\n";
+    std::cout << "time via 'std::clock_t clock()'                : " << static_cast<long double>(tfinish - tstart)/CLOCKS_PER_SEC << " sec\n";
+    std::cout << "time via 'chrono::high_resolution_clock::now()':   " << (std::chrono::duration_cast<std::chrono::milliseconds>(finish - start).count()) << " millisec\n";
 }
