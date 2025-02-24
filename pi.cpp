@@ -10,6 +10,14 @@ int main() {
     unsigned int precision;
     std::cout << "precision: ";
     std::cin >> precision;
+
+    precision += 2;
+    /*
+    Алгоритм, который я использую, видимо, недостаточно точный, и для вычисления K знаков пи
+    K операций и точности вычислений K недостаточно для некоторых редких K, в частности, 
+    я нашел, что для K = 110, 120 и 121 последний знак вычислялся неправильно, поэтому +2.
+    */
+    
     clock_t tstart, tfinish;
 
     LongNum::Number pi(0, precision);
@@ -34,10 +42,6 @@ int main() {
 
     const auto start = std::chrono::high_resolution_clock::now();
 
-    if (precision == 0) {
-        pi = 3_LN;
-    }
-
     for (ull k = 0; k < precision; ++k) {
         pi += n*(a / a0 - b / b0 - c / c0 - d / d0);
         n *= p;
@@ -50,7 +54,7 @@ int main() {
     tfinish = clock();
 
     const auto finish = std::chrono::high_resolution_clock::now();
-
+    precision -= 2;
     //realpi contains 200 decimal digits after the decimal point of pi
     std::string realpi = "3.14159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328230664709384460955058223172535940812848111745028410270193852110555964462294895493038196";
     std::cout << "actual pi:     " <<  realpi.substr(0, precision + 2) << "\n";
