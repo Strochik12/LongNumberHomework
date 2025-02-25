@@ -2,7 +2,7 @@
 CXX = g++
 
 # Флаги компиляции (можно добавить -O2 для оптимизации)
-CXXFLAGS = -Wall -Wextra -std=c++20 -w
+CXXFLAGS = -Wall -Wextra -std=c++20 -w -O2
 
 SRCTESTS = tests.cpp LongNumber.cpp
 SRCPI = pi.cpp LongNumber.cpp
